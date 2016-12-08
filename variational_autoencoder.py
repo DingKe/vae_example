@@ -8,6 +8,7 @@ from scipy.stats import norm
 
 from keras.layers import Input, Dense, Lambda
 from keras.models import Model
+from keras.regularizers import l2
 from keras import backend as K
 from keras import objectives
 from keras.datasets import mnist
@@ -22,11 +23,14 @@ nb_epoch = 50
 epsilon_std = 1.0
 use_loss = 'mse' # 'mse' or 'xent'
 
+decay = 1e-4 # weight decay, a.k. l2 regularization
+bias = True
+
 ## Encoder
 x = Input(batch_shape=(batch_size, n))
-h_encoded = Dense(hidden_dim, activation='tanh')(x)
-z_mean = Dense(m)(h_encoded)
-z_log_var = Dense(m)(h_encoded)
+h_encoded = Dense(hidden_dim, W_regularizer=l2(decay), b_regularizer=l2(decay), bias=bias, activation='tanh')(x)
+z_mean = Dense(m, W_regularizer=l2(decay), b_regularizer=l2(decay), bias=bias)(h_encoded)
+z_log_var = Dense(m, W_regularizer=l2(decay), b_regularizer=l2(decay), bias=bias)(h_encoded)
 
 
 ## Sampler
@@ -39,8 +43,8 @@ def sampling(args):
 z = Lambda(sampling, output_shape=(m,))([z_mean, z_log_var])
 
 # we instantiate these layers separately so as to reuse them later
-decoder_h = Dense(hidden_dim, activation='tanh')
-decoder_mean = Dense(n, activation='sigmoid')
+decoder_h = Dense(hidden_dim, W_regularizer=l2(decay), b_regularizer=l2(decay), bias=bias, activation='tanh')
+decoder_mean = Dense(n, W_regularizer=l2(decay), b_regularizer=l2(decay), bias=bias, activation='sigmoid')
 
 ## Dcoder
 h_decoded = decoder_h(z)
