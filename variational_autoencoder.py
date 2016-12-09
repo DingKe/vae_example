@@ -21,7 +21,7 @@ m = 2
 hidden_dim = 256
 nb_epoch = 50
 epsilon_std = 1.0
-use_loss = 'mse' # 'mse' or 'xent'
+use_loss = 'xent' # 'mse' or 'xent'
 
 decay = 1e-4 # weight decay, a.k. l2 regularization
 bias = True
@@ -119,3 +119,24 @@ fig = plt.figure(figsize=(10, 10))
 plt.imshow(figure, cmap='Greys_r')
 plt.show()
 fig.savefig('x_{}.png'.format(use_loss))
+
+# data imputation
+figure = np.zeros((digit_size * 3, digit_size * n))
+x = x_test[:batch_size,:]
+x_corupted = np.copy(x)
+x_corupted[:, 300:400] = 0
+x_encoded = vae.predict(x_corupted, batch_size=batch_size).reshape((-1, digit_size, digit_size))
+x = x.reshape((-1, digit_size, digit_size))
+x_corupted = x_corupted.reshape((-1, digit_size, digit_size))
+for i in range(n):
+    xi = x[i]
+    xi_c = x_corupted[i]
+    xi_e = x_encoded[i]
+    figure[:digit_size, i * digit_size:(i+1)*digit_size] = xi
+    figure[digit_size:2 * digit_size, i * digit_size:(i+1)*digit_size] = xi_c
+    figure[2 * digit_size:, i * digit_size:(i+1)*digit_size] = xi_e
+
+fig = plt.figure(figsize=(10, 10))
+plt.imshow(figure, cmap='Greys_r')
+plt.show()
+fig.savefig('i_{}.png'.format(use_loss))

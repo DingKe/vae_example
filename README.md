@@ -12,3 +12,9 @@ Simple example Variational Auto-Encoder (VAE) on MNIST
 ## crossentropy loss
 ![](./img/x_xent.png)
 
+
+# Imputation
+## MSE loss
+![](./img/i_mse.png)
+## crossentropy loss
+![](./img/i_xent.png)
